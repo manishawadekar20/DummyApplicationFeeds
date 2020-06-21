@@ -14,19 +14,30 @@ class Home: UIViewController {
     @IBOutlet fileprivate weak var tblFeeds:UITableView!
     
     
-    var arrFeeds:[String] = []
+    var arrFeeds:[FeedElement] = []
     // MARK: -
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
+        self.getFeeds()
+    }
+    
+    func getFeeds() {
+        FeedViewModel.fetchFeeds { (feed, error) in
+            guard let feeds = feed else {
+                return
+            }
+            print(feeds)
+            self.arrFeeds = feeds
+            self.tblFeeds.reloadData()
+        }
     }
 }
 
 extension Home: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 5 //arrFeeds.count
+        return arrFeeds.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
