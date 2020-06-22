@@ -7,7 +7,7 @@
 //
 
 import Foundation
-//let feed = try? newJSONDecoder().decode(Feed.self, from: jsonData)
+
 // MARK: - Feed
 struct FeedElement: Codable {
     let id, createdAt, content: String

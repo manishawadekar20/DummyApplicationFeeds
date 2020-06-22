@@ -22,6 +22,9 @@ class HomeTableViewCell: UITableViewCell {
     
     @IBOutlet weak var lcMediaHeight:NSLayoutConstraint!
     
+    var currentMediaURL = ""
+    var currentProfileURL = ""
+    
     //MARK: -
     
     override func awakeFromNib() {
@@ -32,8 +35,56 @@ class HomeTableViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
         // Configure the view for the selected state
     }
-
+    
+    func configureCell(feed: FeedElement) {
+        self.imgProfile.image = UIImage(named:"avataar")
+        self.imgMedia.image = UIImage(named:"placeholder")
+        self.lblComments.text = AppHelper.getNumberInKFormat(inpNumber:Double(feed.comments)) + " " + "Comments"
+        self.lblLikes.text = AppHelper.getNumberInKFormat(inpNumber:Double(feed.likes)) + " " + "Likes"
+        self.lblDesc.text = feed.content
+        self.lblTime.text = AppHelper.getTime(strDate: feed.createdAt)
+        
+        if feed.user.count > 0 {
+            self.currentProfileURL = feed.user[0].avatar
+            self.lblUserName.text = feed.user[0].name
+            self.lblUserDesignation.text = feed.user[0].designation
+            
+            if let image = cache.object(forKey: feed.user[0].avatar as NSString) {
+                self.imgProfile.image = image
+            }
+            else
+            {
+                FeedViewModel.downloadImage(url: feed.user[0].avatar) { (image, imagePath, error) in
+                    DispatchQueue.main.async{
+                        if error == nil {
+                            if self.currentProfileURL.lowercased() == imagePath.lowercased() {
+                                self.imgProfile.image = UIImage(data: image!)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if feed.media.count > 0 {
+            self.currentMediaURL = feed.media[0].image
+            if let image = cache.object(forKey: feed.media[0].image as NSString) {
+                self.imgMedia.image = image
+            }
+            else
+            {
+                FeedViewModel.downloadImage(url: feed.media[0].image) { (image, imagepath, error) in
+                    DispatchQueue.main.async{
+                        if error == nil {
+                            if self.currentMediaURL.lowercased() == imagepath.lowercased() {
+                                self.imgMedia.image = UIImage(data: image!)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

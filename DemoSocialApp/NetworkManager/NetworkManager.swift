@@ -12,7 +12,9 @@ protocol NetworkManager {
     typealias SuccessHandler = (Success) -> Void
     typealias ErrorHandler = (Error) -> Void
     
+
     static func doAPICall(request: URLRequest, onSuccess: @escaping SuccessHandler, onError: @escaping ErrorHandler)
+    static func downLoadImage(request: URL, onSuccess: @escaping SuccessHandler, onError: @escaping ErrorHandler)
 }
 
 extension NetworkManager {
@@ -20,8 +22,8 @@ extension NetworkManager {
     static func doAPICall(request: URLRequest, onSuccess: @escaping SuccessHandler, onError: @escaping ErrorHandler) {
     
         let configuration = URLSessionConfiguration.default
-        
         let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: OperationQueue.main)
+        
         let dataTaskJob = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 let error = Error(errorCode: error._code, errorMessage: error.localizedDescription)
@@ -59,4 +61,19 @@ extension NetworkManager {
         }
         dataTaskJob.resume()
     } //end of doAPICall
+    
+    static func downLoadImage(request: URL, onSuccess: @escaping SuccessHandler, onError: @escaping ErrorHandler) {
+        let session = URLSession.shared
+        
+        let task = session.downloadTask(with: request, completionHandler: { (location, response, error) in
+            if let data = try? Data(contentsOf: request) {
+                DispatchQueue.main.async {
+                    let success = Success(data: data, request: URLRequest(url: request))
+                    onSuccess(success)
+                }
+            }
+        })
+        task.resume()
+    }
+    
 }

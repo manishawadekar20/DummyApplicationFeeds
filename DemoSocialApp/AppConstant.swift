@@ -61,18 +61,7 @@ struct Error: Codable {
 
 enum ErrorCode: Int {
     case generic = -500001
-    case noNetwork = -500002
-    case invalidToken = -500003
-    case failedValidation = -500004
     case decoding = -500005
-    case notAllowToCall = -500006
-    
-    enum AddressBook: Int {
-        case notAllow = -500101
-        case contactAlreadyPresent = -500102
-        case failedToSave = -500103
-        case noContactFound = -500104
-    }
 }
 
 struct AlertMessages {
@@ -80,6 +69,13 @@ struct AlertMessages {
     }
     
     static let generic = "Sorry, something went wrong. Please try again"
-    static let noInternet = "No Internet"
-    static let noData = "No data"
+}
+
+struct viewTags
+{
+    private init(){}
+    
+    static let loaderViewTag = 99999
+    static let activityLoaderViewTag = 9999
+    static let loaderViewWidth = 50.0
 }

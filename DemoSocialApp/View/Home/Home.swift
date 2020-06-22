@@ -24,13 +24,20 @@ class Home: UIViewController {
     }
     
     func getFeeds() {
+        self.showLoader()
         FeedViewModel.fetchFeeds { (feed, error) in
             guard let feeds = feed else {
+                self.hideLoader()
+                if error != nil {
+                    self.showAlert(title: "Error", message: error?.errorMessage ?? AlertMessages.generic, buttonTitle: "OK", completion: nil)
+                }
                 return
             }
-            print(feeds)
             self.arrFeeds = feeds
+            self.hideLoader()
             self.tblFeeds.reloadData()
+            self.tblFeeds.isHidden = false
+            
         }
     }
 }
@@ -42,6 +49,7 @@ extension Home: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "idHomeCell") as! HomeTableViewCell
+        cell.configureCell(feed: arrFeeds[indexPath.row])
         return cell
     }
 }
@@ -49,7 +57,7 @@ extension Home: UITableViewDataSource {
 extension Home: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath){
         if let homeCell = cell as? HomeTableViewCell {
-            if indexPath.row % 2 == 0 {
+            if arrFeeds[indexPath.row].media.count > 0 && arrFeeds[indexPath.row].media[0].image.isEmpty == false  {
                 homeCell.lcMediaHeight.constant = 150
             }
             else {
@@ -59,11 +67,6 @@ extension Home: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row % 2 == 0 {
-            return 335
-        }
-        else {
-            return 185
-        }
+        return UITableView.automaticDimension
     }
 }
